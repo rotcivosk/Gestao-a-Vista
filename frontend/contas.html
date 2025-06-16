@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Conta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2>Cadastrar Conta</h2>
+    <div class="card p-4">
+        <div class="mb-3">
+            <label>Nome da Conta:</label>
+            <input id="nome" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Valor Mensal:</label>
+            <input id="valor" type="number" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Descrição:</label>
+            <input id="descricao" class="form-control">
+        </div>
+        <button class="btn btn-success" onclick="cadastrar()">Cadastrar</button>
+        <a href="dashboard.html" class="btn btn-secondary">Voltar</a>
+    </div>
+</div>
+
+<script>
+function cadastrar() {
+    const nome = document.getElementById('nome').value;
+    const valor = parseFloat(document.getElementById('valor').value);
+    const descricao = document.getElementById('descricao').value;
+    const usuario_id = localStorage.getItem('usuario_id');
+
+    fetch(`http://127.0.0.1:8000/contas/?usuario_id=${usuario_id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, valor_mensal: valor, descricao })
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert('Conta cadastrada com sucesso!');
+        window.location.href = "dashboard.html";
+    });
+}
+</script>
+</body>
+</html>

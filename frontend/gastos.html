@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Gastos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2>Cadastrar Gasto</h2>
+    <div class="card p-4">
+        <div class="mb-3">
+            <label>Data:</label>
+            <input type="date" id="data" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Valor:</label>
+            <input type="number" id="valor" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Descrição:</label>
+            <input id="descricao" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Conta:</label>
+            <select id="contaSelect" class="form-select">
+                <option value="">Selecione uma conta</option>
+            </select>
+        </div>
+        <button class="btn btn-success" onclick="cadastrar()">Cadastrar</button>
+        <a href="dashboard.html" class="btn btn-secondary">Voltar</a>
+    </div>
+</div>
+
+<script>
+const usuario_id = localStorage.getItem('usuario_id');
+
+// Carregar as contas no dropdown
+function carregarContas() {
+    fetch(`http://127.0.0.1:8000/contas/?usuario_id=${usuario_id}`)
+    .then(res => res.json())
+    .then(data => {
+        const select = document.getElementById('contaSelect');
+        select.innerHTML = `<option value="">Selecione uma conta</option>`;
+        data.forEach(conta => {
+            const option = document.createElement('option');
+            option.value = conta.id;
+            option.textContent = `${conta.nome} - R$${conta.valor_mensal}`;
+            select.appendChild(option);
+        });
+    });
+}
+
+function cadastrar() {
+    const data = document.getElementById('data').value;
+    const valor = parseFloat(document.getElementById('valor').value);
+    const descricao = document.getElementById('descricao').value;
+    const conta_id = document.getElementById('contaSelect').value;
+
+    if (!conta_id) {
+        alert('Selecione uma conta!');
+        return;
+    }
+
+    fetch(`http://127.0.0.1:8000/gastos/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data, valor, descricao, conta_id: parseInt(conta_id) })
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert('Gasto cadastrado com sucesso!');
+        window.location.href = "dashboard.html";
+    });
+}
+
+carregarContas();
+</script>
+
+</body>
+</html>

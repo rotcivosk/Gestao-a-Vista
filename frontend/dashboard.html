@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Gestão à Vista</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h2>Dashboard</h2>
+    <p>
+        <a href="contas.html">Cadastrar Conta</a> | 
+        <a href="gastos.html">Cadastrar Gasto</a> | 
+        <a href="index.html">Sair</a>
+    </p>
+
+    <h4>Selecione uma Conta:</h4>
+    <select id="contaSelect" class="form-select mb-3" onchange="carregarGastos()">
+        <option value="">Selecione...</option>
+    </select>
+
+    <h4>Gastos da Conta:</h4>
+    <div id="gastos"></div>
+</div>
+
+<script>
+const usuario_id = localStorage.getItem('usuario_id');
+
+// Carregar as contas no dropdown
+function carregarContas() {
+    fetch(`http://127.0.0.1:8000/contas/?usuario_id=${usuario_id}`)
+    .then(res => res.json())
+    .then(data => {
+        const select = document.getElementById('contaSelect');
+        select.innerHTML = `<option value="">Selecione...</option>`;
+        data.forEach(conta => {
+            const option = document.createElement('option');
+            option.value = conta.id;
+            option.textContent = `${conta.nome} - R$${conta.valor_mensal}`;
+            select.appendChild(option);
+        });
+    });
+}
+
+// Carregar os gastos da conta selecionada
+function carregarGastos() {
+    const conta_id = document.getElementById('contaSelect').value;
+    const container = document.getElementById('gastos');
+
+    if (!conta_id) {
+        container.innerHTML = "<p>Selecione uma conta para ver os gastos.</p>";
+        return;
+    }
+
+    fetch(`http://127.0.0.1:8000/gastos/?conta_id=${conta_id}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.length === 0) {
+            container.innerHTML = "<p>Sem gastos para essa conta.</p>";
+            return;
+        }
+
+        container.innerHTML = "";
+        data.forEach(gasto => {
+            container.innerHTML += `
+                <div class="card mb-2 p-2">
+                    <strong>${gasto.descricao || 'Sem descrição'}</strong><br>
+                    Data: ${gasto.data}<br>
+                    Valor: R$ ${gasto.valor.toFixed(2)}
+                </div>
+            `;
+        });
+    });
+}
+
+carregarContas();
+</script>
+
+</body>
+</html>
