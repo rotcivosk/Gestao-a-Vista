@@ -27,7 +27,7 @@
     </div>
 
     <div class="card p-4 mx-auto" style="max-width: 500px;">
-        <ul class="nav nav-tabs mb-3" id="myTab">
+        <ul class="nav nav-tabs mb-3">
             <li class="nav-item">
                 <button class="nav-link active" id="login-tab" onclick="mostrarTab('login')">Login</button>
             </li>
@@ -36,6 +36,7 @@
             </li>
         </ul>
 
+        <!-- Login -->
         <div id="login">
             <h4 class="text-center mb-3">Login</h4>
             <div class="mb-3">
@@ -49,6 +50,7 @@
             <button class="btn btn-primary w-100" onclick="login()">Login</button>
         </div>
 
+        <!-- Cadastro -->
         <div id="cadastro" class="d-none">
             <h4 class="text-center mb-3">Criar Conta</h4>
             <div class="mb-3">
@@ -73,6 +75,7 @@
 <script>
 const API_URL = window.location.origin;
 
+// Alterna entre abas de Login e Cadastro
 function mostrarTab(tab) {
     document.getElementById('login').classList.add('d-none');
     document.getElementById('cadastro').classList.add('d-none');
@@ -85,6 +88,7 @@ function mostrarTab(tab) {
     document.getElementById('resposta').innerText = '';
 }
 
+// Login
 function login() {
     const email = document.getElementById('email').value;
     const senha = document.getElementById('senha').value;
@@ -100,17 +104,16 @@ function login() {
         return res.json();
     })
     .then(data => {
-        // ⚠️ Aqui salva o token para usar nas outras páginas
         localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('usuario_id', data.access_token); // ⚠️ OBS: Se quiser salvar o ID, precisa ser retornado na API.
-
         document.getElementById('resposta').innerText = "✅ Login bem-sucedido!";
         window.location.href = "/frontend/dashboard.html";
     })
-    .catch(err => console.error(err));
+    .catch(() => {
+        document.getElementById('resposta').innerText = "❌ Erro no login.";
+    });
 }
 
-
+// Cadastro
 function cadastrar() {
     const nome = document.getElementById('nome-cadastro').value;
     const email = document.getElementById('email-cadastro').value;
@@ -129,18 +132,17 @@ function cadastrar() {
     })
     .then(res => {
         if (!res.ok) {
-            document.getElementById('resposta').innerText = "Erro ao cadastrar.";
+            document.getElementById('resposta').innerText = "❌ Erro ao cadastrar.";
             throw new Error("Erro no cadastro");
         }
         return res.json();
     })
     .then(() => {
-        document.getElementById('resposta').innerText = "Usuário cadastrado com sucesso!";
+        document.getElementById('resposta').innerText = "✅ Usuário cadastrado com sucesso!";
         mostrarTab('login');
     })
-    .catch(err => {
-        document.getElementById('resposta').innerText = "Erro ao cadastrar.";
-        console.error(err);
+    .catch(() => {
+        document.getElementById('resposta').innerText = "❌ Erro ao cadastrar.";
     });
 }
 </script>
