@@ -46,13 +46,23 @@
 </div>
 
 <script>
-const API_URL = window.location.origin;
+const API_URL = "https://SEU-BACKEND.onrender.com"; // 🔥 Insira aqui sua URL correta da API
 const usuario_id = localStorage.getItem('usuario_id');
+const token = localStorage.getItem('access_token');
 
 // Carregar as contas no dropdown
 function carregarContas() {
-    fetch(`${API_URL}/contas/?usuario_id=${usuario_id}`)
-    .then(res => res.json())
+    fetch(`${API_URL}/contas/?usuario_id=${usuario_id}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("Erro ao carregar contas.");
+        }
+        return res.json();
+    })
     .then(data => {
         const select = document.getElementById('contaSelect');
         select.innerHTML = `<option value="">Selecione uma conta</option>`;
@@ -62,9 +72,14 @@ function carregarContas() {
             option.textContent = `${conta.nome} - R$ ${conta.valor_mensal}`;
             select.appendChild(option);
         });
+    })
+    .catch(() => {
+        const select = document.getElementById('contaSelect');
+        select.innerHTML = `<option value="">❌ Erro ao carregar contas</option>`;
     });
 }
 
+// Cadastrar gasto
 function cadastrar() {
     const data = document.getElementById('data').value;
     const valor = parseFloat(document.getElementById('valor').value);
@@ -83,7 +98,10 @@ function cadastrar() {
 
     fetch(`${API_URL}/gastos/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ data, valor, descricao, conta_id: parseInt(conta_id) })
     })
     .then(res => {
