@@ -6,6 +6,8 @@ from database import SessionLocal, engine
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi import Depends, HTTPException, status, Header
+from auth import criar_token, verificar_token
 
 # Criar as tabelas
 models.Base.metadata.create_all(bind=engine)
@@ -33,24 +35,48 @@ def get_db():
 
 # ======================== ROTAS ========================
 
+# Proteção das rotas
+
+def get_current_user(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido",
+        )
+    token = authorization.split(" ")[1]
+    usuario_id = verificar_token(token)
+    if usuario_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido ou expirado",
+        )
+    return int(usuario_id)
+
+
 # Usuário
 @app.post("/usuarios/", response_model=schemas.Usuario)
 def criar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
     return crud.criar_usuario(db, usuario)
 
 
-@app.post("/login/", response_model=schemas.Usuario)
+@app.post("/login/")
 def login(email: str, senha: str, db: Session = Depends(get_db)):
     usuario = crud.autenticar_usuario(db, email, senha)
     if not usuario:
         raise HTTPException(status_code=400, detail="Credenciais inválidas")
-    return usuario
+    access_token = criar_token(data={"sub": str(usuario.id)})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
-# Conta
+
 @app.post("/contas/", response_model=schemas.Conta)
-def criar_conta(conta: schemas.ContaCreate, usuario_id: int, db: Session = Depends(get_db)):
+def criar_conta(
+    conta: schemas.ContaCreate,
+    usuario_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     return crud.criar_conta(db, conta, usuario_id)
+
 
 
 @app.get("/contas/", response_model=List[schemas.Conta])
