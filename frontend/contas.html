@@ -33,7 +33,7 @@
             <input id="descricao" class="form-control" placeholder="Observações...">
         </div>
         <button class="btn btn-success w-100 mb-2" onclick="cadastrar()">💾 Cadastrar</button>
-        <a href="dashboard.html" class="btn btn-secondary w-100">🔙 Voltar</a>
+        <a href="/frontend/dashboard.html" class="btn btn-secondary w-100">🔙 Voltar</a>
 
         <div id="resposta" class="mt-3 text-center text-success"></div>
     </div>
@@ -66,7 +66,7 @@ function cadastrar() {
     })
     .then(() => {
         document.getElementById('resposta').innerText = "✅ Conta cadastrada com sucesso!";
-        setTimeout(() => window.location.href = "dashboard.html", 1200);
+        setTimeout(() => window.location.href = "/frontend/dashboard.html", 1200);
     })
     .catch(() => {
         document.getElementById('resposta').innerText = "❌ Erro ao cadastrar conta.";

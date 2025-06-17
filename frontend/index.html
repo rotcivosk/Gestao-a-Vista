@@ -102,7 +102,7 @@ function login() {
     .then(data => {
         localStorage.setItem('usuario_id', data.id);
         document.getElementById('resposta').innerText = "Login bem-sucedido!";
-        window.location.href = "dashboard.html";
+        window.location.href = "/frontend/dashboard.html";
     })
     .catch(err => console.error(err));
 }
