@@ -94,18 +94,22 @@ function login() {
     })
     .then(res => {
         if (!res.ok) {
-            document.getElementById('resposta').innerText = "Login inválido.";
+            document.getElementById('resposta').innerText = "❌ Login inválido.";
             throw new Error("Falha no login");
         }
         return res.json();
     })
     .then(data => {
-        localStorage.setItem('usuario_id', data.id);
-        document.getElementById('resposta').innerText = "Login bem-sucedido!";
+        // ⚠️ Aqui salva o token para usar nas outras páginas
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('usuario_id', data.access_token); // ⚠️ OBS: Se quiser salvar o ID, precisa ser retornado na API.
+
+        document.getElementById('resposta').innerText = "✅ Login bem-sucedido!";
         window.location.href = "/frontend/dashboard.html";
     })
     .catch(err => console.error(err));
 }
+
 
 function cadastrar() {
     const nome = document.getElementById('nome-cadastro').value;

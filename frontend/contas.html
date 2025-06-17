@@ -47,15 +47,19 @@ function cadastrar() {
     const nome = document.getElementById('nome').value;
     const valor = parseFloat(document.getElementById('valor').value);
     const descricao = document.getElementById('descricao').value;
+    const token = localStorage.getItem('access_token');
 
     if (!nome || !valor) {
         alert('⚠️ Preencha o nome da conta e o valor mensal.');
         return;
     }
 
-    fetch(`${API_URL}/contas/?usuario_id=${usuario_id}`, {
+    fetch(`${API_URL}/contas/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ nome, valor_mensal: valor, descricao })
     })
     .then(res => {
@@ -65,13 +69,14 @@ function cadastrar() {
         return res.json();
     })
     .then(() => {
-        document.getElementById('resposta').innerText = "✅ Conta cadastrada com sucesso!";
+        document.getElementById('resposta').innerHTML = "✅ Conta cadastrada com sucesso!";
         setTimeout(() => window.location.href = "/frontend/dashboard.html", 1200);
     })
     .catch(() => {
-        document.getElementById('resposta').innerText = "❌ Erro ao cadastrar conta.";
+        document.getElementById('resposta').innerHTML = "❌ Erro ao cadastrar conta.";
     });
 }
+
 </script>
 
 </body>
