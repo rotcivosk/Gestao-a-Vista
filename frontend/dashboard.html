@@ -59,8 +59,20 @@ let chartLinhas = null;
 
 // Carregar as contas no dropdown e gráfico de linhas
 function carregarContas() {
-    fetch(`${API_URL}/contas/?usuario_id=${usuario_id}`)
-    .then(res => res.json())
+    const token = localStorage.getItem('access_token');
+
+    fetch(`${API_URL}/contas/`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("Erro ao carregar contas.");
+        }
+        return res.json();
+    })
     .then(data => {
         const select = document.getElementById('contaSelect');
         select.innerHTML = `<option value="">Selecione...</option>`;
@@ -72,6 +84,10 @@ function carregarContas() {
         });
 
         desenharGraficoContas(data);
+    })
+    .catch(() => {
+        const select = document.getElementById('contaSelect');
+        select.innerHTML = `<option value="">Erro ao carregar contas</option>`;
     });
 }
 
