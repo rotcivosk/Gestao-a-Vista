@@ -93,3 +93,7 @@ def criar_gasto(gasto: schemas.GastoCreate, db: Session = Depends(get_db)):
 @app.get("/gastos/", response_model=List[schemas.Gasto])
 def listar_gastos(conta_id: int, db: Session = Depends(get_db)):
     return crud.listar_gastos(db, conta_id)
+
+@app.get("/")
+def read_root():
+    return {"msg": "API Gestão à Vista está rodando 🎯"}
