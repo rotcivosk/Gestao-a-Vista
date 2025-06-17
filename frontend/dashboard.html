@@ -8,31 +8,45 @@
 </head>
 <body class="bg-light">
 
-<div class="container mt-4">
-    <h2>Dashboard</h2>
-    <p>
-        <a href="contas.html">Cadastrar Conta</a> | 
-        <a href="gastos.html">Cadastrar Gasto</a> | 
-        <a href="index.html">Sair</a>
-    </p>
+<div class="container py-4">
+    <h2 class="text-center mb-4">Dashboard - Gestão à Vista</h2>
 
-    <h4>Selecione uma Conta:</h4>
-    <select id="contaSelect" class="form-select mb-3" onchange="carregarGastos()">
-        <option value="">Selecione...</option>
-    </select>
+    <div class="d-flex flex-column flex-md-row justify-content-between mb-4 gap-3">
+        <div>
+            <a href="contas.html" class="btn btn-primary w-100">Cadastrar Conta</a>
+        </div>
+        <div>
+            <a href="gastos.html" class="btn btn-success w-100">Cadastrar Gasto</a>
+        </div>
+        <div>
+            <a href="index.html" class="btn btn-secondary w-100">Sair</a>
+        </div>
+    </div>
 
-    <h4>Gastos da Conta:</h4>
-    <div id="gastos"></div>
+    <div class="mb-4">
+        <h5>Selecione uma Conta:</h5>
+        <select id="contaSelect" class="form-select" onchange="carregarGastos()">
+            <option value="">Selecione...</option>
+        </select>
+    </div>
 
-    <h4>Gráfico de Gastos:</h4>
-    <canvas id="graficoGastos"></canvas>
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Gastos da Conta:</h5>
+            <div id="gastos"></div>
+        </div>
+
+        <div class="col-md-6">
+            <h5>Gráfico de Gastos:</h5>
+            <canvas id="graficoGastos"></canvas>
+        </div>
+    </div>
 </div>
 
 <script>
 const usuario_id = localStorage.getItem('usuario_id');
-let chart = null; // variável para controlar o gráfico
+let chart = null;
 
-// Carregar as contas no dropdown
 function carregarContas() {
     fetch(`http://127.0.0.1:8000/contas/?usuario_id=${usuario_id}`)
     .then(res => res.json())
@@ -48,7 +62,6 @@ function carregarContas() {
     });
 }
 
-// Carregar os gastos da conta selecionada
 function carregarGastos() {
     const conta_id = document.getElementById('contaSelect').value;
     const container = document.getElementById('gastos');
@@ -88,7 +101,6 @@ function carregarGastos() {
     });
 }
 
-// Desenhar gráfico
 function desenharGrafico(labels, dados) {
     const ctx = document.getElementById('graficoGastos').getContext('2d');
 
@@ -97,7 +109,7 @@ function desenharGrafico(labels, dados) {
     }
 
     chart = new Chart(ctx, {
-        type: 'pie', // pode ser 'bar' para barras
+        type: 'pie',
         data: {
             labels: labels,
             datasets: [{
@@ -114,7 +126,6 @@ function desenharGrafico(labels, dados) {
     });
 }
 
-// Gerar cores aleatórias para os setores
 function gerarCores(qtd) {
     const cores = [];
     for (let i = 0; i < qtd; i++) {
@@ -124,7 +135,6 @@ function gerarCores(qtd) {
     return cores;
 }
 
-// Limpar gráfico
 function limparGrafico() {
     if (chart != null) {
         chart.destroy();
