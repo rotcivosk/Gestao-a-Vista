@@ -41,12 +41,19 @@
             <canvas id="graficoGastos"></canvas>
         </div>
     </div>
+
+    <div class="mt-5">
+        <h5>Gráfico de Linhas - Valor Mensal das Contas</h5>
+        <canvas id="graficoContas"></canvas>
+    </div>
 </div>
 
 <script>
 const usuario_id = localStorage.getItem('usuario_id');
 let chart = null;
+let chartContas = null;
 
+// Carregar as contas no dropdown e no gráfico de linhas
 function carregarContas() {
     fetch(`http://127.0.0.1:8000/contas/?usuario_id=${usuario_id}`)
     .then(res => res.json())
@@ -59,9 +66,12 @@ function carregarContas() {
             option.textContent = `${conta.nome} - R$${conta.valor_mensal}`;
             select.appendChild(option);
         });
+
+        desenharGraficoContas(data);
     });
 }
 
+// Carregar os gastos da conta selecionada
 function carregarGastos() {
     const conta_id = document.getElementById('contaSelect').value;
     const container = document.getElementById('gastos');
@@ -101,6 +111,7 @@ function carregarGastos() {
     });
 }
 
+// Desenhar gráfico de pizza dos gastos
 function desenharGrafico(labels, dados) {
     const ctx = document.getElementById('graficoGastos').getContext('2d');
 
@@ -126,6 +137,52 @@ function desenharGrafico(labels, dados) {
     });
 }
 
+// Desenhar gráfico de linhas de todas as contas
+function desenharGraficoContas(data) {
+    const ctx = document.getElementById('graficoContas').getContext('2d');
+
+    const labels = data.map(conta => conta.nome);
+    const valores = data.map(conta => conta.valor_mensal);
+
+    if (chartContas != null) {
+        chartContas.destroy();
+    }
+
+    chartContas = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Valor Mensal das Contas',
+                data: valores,
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.2,
+                pointBackgroundColor: 'rgb(75, 192, 192)',
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Valor (R$)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Contas'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gerar cores aleatórias
 function gerarCores(qtd) {
     const cores = [];
     for (let i = 0; i < qtd; i++) {
@@ -135,6 +192,7 @@ function gerarCores(qtd) {
     return cores;
 }
 
+// Limpar gráfico de pizza
 function limparGrafico() {
     if (chart != null) {
         chart.destroy();
@@ -147,3 +205,4 @@ carregarContas();
 
 </body>
 </html>
+
