@@ -5,57 +5,61 @@
     <title>Dashboard - Gestão à Vista</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
 <div class="container py-4">
-    <h2 class="text-center mb-4">Dashboard - Gestão à Vista</h2>
+    <h2 class="text-center mb-4">📊 Dashboard - Gestão à Vista</h2>
 
     <div class="d-flex flex-column flex-md-row justify-content-between mb-4 gap-3">
-        <div>
-            <a href="contas.html" class="btn btn-primary w-100">Cadastrar Conta</a>
-        </div>
-        <div>
-            <a href="gastos.html" class="btn btn-success w-100">Cadastrar Gasto</a>
-        </div>
-        <div>
-            <a href="index.html" class="btn btn-secondary w-100">Sair</a>
-        </div>
+        <a href="contas.html" class="btn btn-primary w-100">➕ Cadastrar Conta</a>
+        <a href="gastos.html" class="btn btn-success w-100">💰 Cadastrar Gasto</a>
+        <a href="index.html" class="btn btn-secondary w-100">⏏️ Sair</a>
     </div>
 
-    <div class="mb-4">
+    <div class="card p-4 mb-4">
         <h5>Selecione uma Conta:</h5>
-        <select id="contaSelect" class="form-select" onchange="carregarGastos()">
+        <select id="contaSelect" class="form-select mb-3" onchange="carregarGastos()">
             <option value="">Selecione...</option>
         </select>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h6>🔍 Gastos da Conta:</h6>
+                <div id="gastos"></div>
+            </div>
+            <div class="col-md-6">
+                <h6>📊 Gráfico de Gastos (Pizza)</h6>
+                <canvas id="graficoGastos"></canvas>
+            </div>
+        </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <h5>Gastos da Conta:</h5>
-            <div id="gastos"></div>
-        </div>
-
-        <div class="col-md-6">
-            <h5>Gráfico de Gastos:</h5>
-            <canvas id="graficoGastos"></canvas>
-        </div>
-    </div>
-
-    <div class="mt-5">
-        <h5>Gráfico de Linhas - Valor Mensal das Contas</h5>
+    <div class="card p-4">
+        <h5 class="text-center mb-4">📈 Gráfico de Linhas - Valor Mensal das Contas</h5>
         <canvas id="graficoContas"></canvas>
     </div>
 </div>
 
 <script>
+const API_URL = window.location.origin;
 const usuario_id = localStorage.getItem('usuario_id');
-let chart = null;
-let chartContas = null;
 
-// Carregar as contas no dropdown e no gráfico de linhas
+let chartPizza = null;
+let chartLinhas = null;
+
+// Carregar as contas no dropdown e gráfico de linhas
 function carregarContas() {
-    fetch(`http://127.0.0.1:8000/contas/?usuario_id=${usuario_id}`)
+    fetch(`${API_URL}/contas/?usuario_id=${usuario_id}`)
     .then(res => res.json())
     .then(data => {
         const select = document.getElementById('contaSelect');
@@ -63,7 +67,7 @@ function carregarContas() {
         data.forEach(conta => {
             const option = document.createElement('option');
             option.value = conta.id;
-            option.textContent = `${conta.nome} - R$${conta.valor_mensal}`;
+            option.textContent = `${conta.nome} - R$ ${conta.valor_mensal}`;
             select.appendChild(option);
         });
 
@@ -78,16 +82,16 @@ function carregarGastos() {
 
     if (!conta_id) {
         container.innerHTML = "<p>Selecione uma conta para ver os gastos.</p>";
-        limparGrafico();
+        limparGraficoPizza();
         return;
     }
 
-    fetch(`http://127.0.0.1:8000/gastos/?conta_id=${conta_id}`)
+    fetch(`${API_URL}/gastos/?conta_id=${conta_id}`)
     .then(res => res.json())
     .then(data => {
         if (data.length === 0) {
             container.innerHTML = "<p>Sem gastos para essa conta.</p>";
-            limparGrafico();
+            limparGraficoPizza();
             return;
         }
 
@@ -99,27 +103,27 @@ function carregarGastos() {
             container.innerHTML += `
                 <div class="card mb-2 p-2">
                     <strong>${gasto.descricao || 'Sem descrição'}</strong><br>
-                    Data: ${gasto.data}<br>
-                    Valor: R$ ${gasto.valor.toFixed(2)}
+                    📅 Data: ${gasto.data}<br>
+                    💰 Valor: R$ ${gasto.valor.toFixed(2)}
                 </div>
             `;
             labels.push(gasto.descricao || 'Sem descrição');
             valores.push(gasto.valor);
         });
 
-        desenharGrafico(labels, valores);
+        desenharGraficoPizza(labels, valores);
     });
 }
 
 // Desenhar gráfico de pizza dos gastos
-function desenharGrafico(labels, dados) {
+function desenharGraficoPizza(labels, dados) {
     const ctx = document.getElementById('graficoGastos').getContext('2d');
 
-    if (chart != null) {
-        chart.destroy();
+    if (chartPizza != null) {
+        chartPizza.destroy();
     }
 
-    chart = new Chart(ctx, {
+    chartPizza = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: labels,
@@ -137,18 +141,18 @@ function desenharGrafico(labels, dados) {
     });
 }
 
-// Desenhar gráfico de linhas de todas as contas
+// Desenhar gráfico de linhas dos valores das contas
 function desenharGraficoContas(data) {
     const ctx = document.getElementById('graficoContas').getContext('2d');
 
     const labels = data.map(conta => conta.nome);
     const valores = data.map(conta => conta.valor_mensal);
 
-    if (chartContas != null) {
-        chartContas.destroy();
+    if (chartLinhas != null) {
+        chartLinhas.destroy();
     }
 
-    chartContas = new Chart(ctx, {
+    chartLinhas = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -158,7 +162,7 @@ function desenharGraficoContas(data) {
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
                 tension: 0.2,
-                pointBackgroundColor: 'rgb(75, 192, 192)',
+                pointBackgroundColor: 'rgb(75, 192, 192)'
             }]
         },
         options: {
@@ -193,10 +197,10 @@ function gerarCores(qtd) {
 }
 
 // Limpar gráfico de pizza
-function limparGrafico() {
-    if (chart != null) {
-        chart.destroy();
-        chart = null;
+function limparGraficoPizza() {
+    if (chartPizza != null) {
+        chartPizza.destroy();
+        chartPizza = null;
     }
 }
 
@@ -205,4 +209,3 @@ carregarContas();
 
 </body>
 </html>
-
