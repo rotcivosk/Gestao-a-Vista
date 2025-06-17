@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Header, Request
+from fastapi import FastAPI, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 from typing import List
 import models, schemas, crud
@@ -18,7 +18,7 @@ app = FastAPI()
 # ======================== CORS ========================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # depois pode restringir
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -71,13 +71,16 @@ def login(email: str, senha: str, db: Session = Depends(get_db)):
 def criar_conta(
     conta: schemas.ContaCreate,
     usuario_id: int = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
     return crud.criar_conta(db, conta, usuario_id)
 
 
 @app.get("/contas/", response_model=List[schemas.Conta])
-def listar_contas(usuario_id: int, db: Session = Depends(get_db)):
+def listar_contas(
+    usuario_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     return crud.listar_contas(db, usuario_id)
 
 
@@ -93,10 +96,7 @@ def listar_gastos(conta_id: int, db: Session = Depends(get_db)):
 
 
 # ======================== Arquivos Estáticos ========================
-# Frontend (HTML, CSS, JS)
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
-
-# Imagens
 app.mount("/images", StaticFiles(directory="images"), name="images")
 
 
