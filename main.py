@@ -9,6 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, HTTPException, status, Header
 from auth import criar_token, verificar_token
 
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi import Request
+
 # Criar as tabelas
 models.Base.metadata.create_all(bind=engine)
 
@@ -94,6 +99,13 @@ def criar_gasto(gasto: schemas.GastoCreate, db: Session = Depends(get_db)):
 def listar_gastos(conta_id: int, db: Session = Depends(get_db)):
     return crud.listar_gastos(db, conta_id)
 
-@app.get("/")
-def read_root():
-    return {"msg": "API Gestão à Vista está rodando 🎯"}
+
+# Servir arquivos estáticos (CSS, imagens, JS)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Servir templates (HTML)
+templates = Jinja2Templates(directory="frontend")
+
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
