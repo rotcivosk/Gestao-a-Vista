@@ -79,7 +79,7 @@ function carregarContas() {
         data.forEach(conta => {
             const option = document.createElement('option');
             option.value = conta.id;
-            option.textContent = `${conta.nome} - R$ ${conta.valor_mensal}`;
+            option.textContent = `${conta.nome} - R$ ${conta.valor_mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             select.appendChild(option);
         });
 
@@ -121,7 +121,7 @@ function carregarGastos() {
                 <div class="card mb-2 p-2">
                     <strong>${gasto.descricao || 'Sem descrição'}</strong><br>
                     📅 Data: ${gasto.data}<br>
-                    💰 Valor: R$ ${gasto.valor.toFixed(2)}
+                    💰 Valor: R$ ${gasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
             `;
             labels.push(gasto.descricao || 'Sem descrição');
@@ -190,18 +190,33 @@ function desenharGraficoContas(data) {
                     title: {
                         display: true,
                         text: 'Valor (R$)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR');
+                        }
                     }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Contas'
-                    }
-                }
-            }
-        }
-    });
+               
+        x: {
+            title: {
+                display: true,
+                text: 'Contas'
+            }
+        }
+    },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: function(context) {
+                    let valor = context.parsed.y;
+                    return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                }
+            }
+        }
+    }
 }
+
 
 // Gerar cores aleatórias
 function gerarCores(qtd) {
