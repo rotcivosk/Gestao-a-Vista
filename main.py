@@ -104,3 +104,8 @@ app.mount("/images", StaticFiles(directory="images"), name="images")
 @app.get("/")
 def read_root():
     return FileResponse("frontend/index.html")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="main:app", port=8000)
