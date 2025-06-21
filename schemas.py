@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 from datetime import date
 
 
@@ -16,8 +16,9 @@ class UsuarioCreate(UsuarioBase):
 class Usuario(UsuarioBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 # ===== Conta =====
@@ -35,8 +36,9 @@ class Conta(ContaBase):
     id: int
     usuario_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 # ===== Gasto =====
@@ -54,5 +56,6 @@ class Gasto(GastoBase):
     id: int
     conta_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
