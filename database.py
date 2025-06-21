@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql://username:password@host:port/database"
 
 if DATABASE_URL is None:
     raise ValueError("DATABASE_URL não configurado nas variáveis de ambiente do Railway.")
