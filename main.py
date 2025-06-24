@@ -95,7 +95,7 @@ def criar_gasto(
     usuario_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return crud.criar_gasto(db, gasto, usuario_id)
+    return crud.criar_gasto(db, gasto)
 
 
 @app.get("/gastos/", response_model=List[schemas.Gasto])
@@ -104,7 +104,7 @@ def listar_gastos(
     usuario_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return crud.listar_gastos(db, conta_id, usuario_id)
+    return crud.listar_gastos(db, conta_id)
 
 
 # ======================== Arquivos Estáticos ========================
