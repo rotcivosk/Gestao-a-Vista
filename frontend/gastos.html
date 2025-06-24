@@ -17,7 +17,7 @@
 <body class="bg-light">
 
 <div class="container py-4">
-    <h2 class="text-center mb-4">💰 Cadastro de Gastos</h2>
+    <h2 class="text-center mb-4">Cadastro de Gastos</h2>
 
     <div class="card p-4 mx-auto" style="max-width: 500px;">
         <div class="mb-3">
@@ -38,21 +38,20 @@
                 <option value="">Selecione uma conta</option>
             </select>
         </div>
-        <button class="btn btn-success w-100 mb-2" onclick="cadastrar()">💾 Cadastrar</button>
-        <a href="/frontend/dashboard.html" class="btn btn-secondary w-100">🔙 Voltar</a>
+        <button class="btn btn-success w-100 mb-2" onclick="cadastrar()">Cadastrar</button>
+        <a href="/frontend/dashboard.html" class="btn btn-secondary w-100">Voltar</a>
 
         <div id="resposta" class="mt-3 text-center text-success"></div>
     </div>
 </div>
 
 <script>
-const API_URL = "https://SEU-BACKEND.onrender.com"; // 🔥 Insira aqui sua URL correta da API
-const usuario_id = localStorage.getItem('usuario_id');
+const API_URL = window.location.origin; // Usa automaticamente o domínio atual
 const token = localStorage.getItem('access_token');
 
 // Carregar as contas no dropdown
 function carregarContas() {
-    fetch(`${API_URL}/contas/?usuario_id=${usuario_id}`, {
+    fetch(`${API_URL}/contas/`, {
         headers: {
             "Authorization": `Bearer ${token}`
         }
@@ -69,13 +68,13 @@ function carregarContas() {
         data.forEach(conta => {
             const option = document.createElement('option');
             option.value = conta.id;
-            option.textContent = `${conta.nome} - R$ ${conta.valor_mensal}`;
+            option.textContent = `${conta.nome} - R$ ${conta.valor_mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
             select.appendChild(option);
         });
     })
     .catch(() => {
         const select = document.getElementById('contaSelect');
-        select.innerHTML = `<option value="">❌ Erro ao carregar contas</option>`;
+        select.innerHTML = `<option value="">Erro ao carregar contas</option>`;
     });
 }
 
@@ -83,16 +82,16 @@ function carregarContas() {
 function cadastrar() {
     const data = document.getElementById('data').value;
     const valor = parseFloat(document.getElementById('valor').value);
-    const descricao = document.getElementById('descricao').value;
+    const descricao = document.getElementById('descricao').value.trim();
     const conta_id = document.getElementById('contaSelect').value;
 
     if (!conta_id) {
-        alert('⚠️ Selecione uma conta!');
+        alert('Selecione uma conta!');
         return;
     }
 
     if (!data || !valor || !descricao) {
-        alert('⚠️ Preencha todos os campos!');
+        alert('Preencha todos os campos!');
         return;
     }
 
@@ -102,7 +101,12 @@ function cadastrar() {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ data, valor, descricao, conta_id: parseInt(conta_id) })
+        body: JSON.stringify({ 
+            data: data, 
+            valor: valor, 
+            descricao: descricao, 
+            conta_id: parseInt(conta_id) 
+        })
     })
     .then(res => {
         if (!res.ok) {
@@ -111,11 +115,11 @@ function cadastrar() {
         return res.json();
     })
     .then(() => {
-        document.getElementById('resposta').innerText = "✅ Gasto cadastrado com sucesso!";
+        document.getElementById('resposta').innerText = "Gasto cadastrado com sucesso!";
         setTimeout(() => window.location.href = "/frontend/dashboard.html", 1200);
     })
     .catch(() => {
-        document.getElementById('resposta').innerText = "❌ Erro ao cadastrar gasto.";
+        document.getElementById('resposta').innerText = "Erro ao cadastrar gasto.";
     });
 }
 

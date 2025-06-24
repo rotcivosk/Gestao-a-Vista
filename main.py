@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Header
+from fastapi import FastAPI, Depends, HTTPException, status, Header, Body
 from sqlalchemy.orm import Session
 from typing import List
 import models, schemas, crud
@@ -58,7 +58,11 @@ def criar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db))
 
 
 @app.post("/login/")
-def login(email: str, senha: str, db: Session = Depends(get_db)):
+def login(
+    email: str = Body(...), 
+    senha: str = Body(...), 
+    db: Session = Depends(get_db)
+):
     usuario = crud.autenticar_usuario(db, email, senha)
     if not usuario:
         raise HTTPException(status_code=400, detail="Credenciais inválidas")
@@ -86,12 +90,20 @@ def listar_contas(
 
 # ======================== Gasto ========================
 @app.post("/gastos/", response_model=schemas.Gasto)
-def criar_gasto(gasto: schemas.GastoCreate, db: Session = Depends(get_db)):
+def criar_gasto(
+    gasto: schemas.GastoCreate, 
+    usuario_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     return crud.criar_gasto(db, gasto)
 
 
 @app.get("/gastos/", response_model=List[schemas.Gasto])
-def listar_gastos(conta_id: int, db: Session = Depends(get_db)):
+def listar_gastos(
+    conta_id: int,
+    usuario_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     return crud.listar_gastos(db, conta_id)
 
 
