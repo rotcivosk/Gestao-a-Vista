@@ -18,12 +18,12 @@
 <body>
 
 <div class="container py-4">
-    <h2 class="text-center mb-4">📊 Dashboard - Gestão à Vista</h2>
+    <h2 class="text-center mb-4">Dashboard - Gestão à Vista</h2>
 
     <div class="d-flex flex-column flex-md-row justify-content-between mb-4 gap-3">
-        <a href="/frontend/contas.html" class="btn btn-primary w-100">➕ Cadastrar Conta</a>
-        <a href="/frontend/gastos.html" class="btn btn-success w-100">💰 Cadastrar Gasto</a>
-        <a href="/frontend/index.html" class="btn btn-secondary w-100">⏏️ Sair</a>
+        <a href="/frontend/contas.html" class="btn btn-primary w-100">Cadastrar Conta</a>
+        <a href="/frontend/gastos.html" class="btn btn-success w-100">Cadastrar Gasto</a>
+        <a href="/frontend/index.html" class="btn btn-secondary w-100">Sair</a>
     </div>
 
     <div class="card p-4 mb-4">
@@ -34,18 +34,18 @@
 
         <div class="row">
             <div class="col-md-6">
-                <h6>🔍 Gastos da Conta:</h6>
+                <h6>Gastos da Conta:</h6>
                 <div id="gastos"></div>
             </div>
             <div class="col-md-6">
-                <h6>📊 Gráfico de Gastos (Pizza)</h6>
+                <h6>Gráfico de Gastos (Pizza)</h6>
                 <canvas id="graficoGastos"></canvas>
             </div>
         </div>
     </div>
 
     <div class="card p-4">
-        <h5 class="text-center mb-4">📈 Gráfico de Linhas - Valor Mensal das Contas</h5>
+        <h5 class="text-center mb-4">Gráfico de Linhas - Valor Mensal das Contas</h5>
         <canvas id="graficoContas"></canvas>
     </div>
 </div>
@@ -57,7 +57,6 @@ const usuario_id = localStorage.getItem('usuario_id');
 let chartPizza = null;
 let chartLinhas = null;
 
-// Carregar as contas no dropdown e gráfico de linhas
 function carregarContas() {
     const token = localStorage.getItem('access_token');
 
@@ -91,8 +90,6 @@ function carregarContas() {
     });
 }
 
-
-// Carregar os gastos da conta selecionada
 function carregarGastos() {
     const conta_id = document.getElementById('contaSelect').value;
     const container = document.getElementById('gastos');
@@ -120,8 +117,8 @@ function carregarGastos() {
             container.innerHTML += `
                 <div class="card mb-2 p-2">
                     <strong>${gasto.descricao || 'Sem descrição'}</strong><br>
-                    📅 Data: ${gasto.data}<br>
-                    💰 Valor: R$ ${gasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Data: ${gasto.data}<br>
+                    Valor: R$ ${gasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
             `;
             labels.push(gasto.descricao || 'Sem descrição');
@@ -132,7 +129,6 @@ function carregarGastos() {
     });
 }
 
-// Desenhar gráfico de pizza dos gastos
 function desenharGraficoPizza(labels, dados) {
     const ctx = document.getElementById('graficoGastos').getContext('2d');
 
@@ -158,7 +154,6 @@ function desenharGraficoPizza(labels, dados) {
     });
 }
 
-// Desenhar gráfico de linhas dos valores das contas
 function desenharGraficoContas(data) {
     const ctx = document.getElementById('graficoContas').getContext('2d');
 
@@ -191,34 +186,33 @@ function desenharGraficoContas(data) {
                         display: true,
                         text: 'Valor (R$)'
                     },
-            ticks: {
-                callback: function(value) {
-                    return 'R$ ' + value.toLocaleString('pt-BR');
-                }
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR');
+                        }
                     }
                 },
-               
-        x: {
-            title: {
-                display: true,
-                text: 'Contas'
-            }
-        }
-    },
-    plugins: {
-        tooltip: {
-            callbacks: {
-                label: function(context) {
-                    let valor = context.parsed.y;
-                    return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                }
-            }
-        }
-    }
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Contas'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let valor = context.parsed.y;
+                            return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
-
-// Gerar cores aleatórias
 function gerarCores(qtd) {
     const cores = [];
     for (let i = 0; i < qtd; i++) {
@@ -228,7 +222,6 @@ function gerarCores(qtd) {
     return cores;
 }
 
-// Limpar gráfico de pizza
 function limparGraficoPizza() {
     if (chartPizza != null) {
         chartPizza.destroy();
