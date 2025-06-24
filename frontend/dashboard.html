@@ -191,10 +191,10 @@ function desenharGraficoContas(data) {
                         display: true,
                         text: 'Valor (R$)'
                     },
-                    ticks: {
-                        callback: function(value) {
-                            return 'R$ ' + value.toLocaleString('pt-BR');
-                        }
+            ticks: {
+                callback: function(value) {
+                    return 'R$ ' + value.toLocaleString('pt-BR');
+                }
                     }
                 },
                
