@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from models import Usuario, Conta, Gasto
+from app.models import Usuario, Conta, Gasto
 from schemas import UsuarioCreate, ContaCreate, GastoCreate
 from fastapi import HTTPException
 

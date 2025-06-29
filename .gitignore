@@ -1,7 +1,26 @@
+# Byte-compiled / compiled files
 __pycache__/
-*.pyc
-build/
-dist/
-*.spec
-*.exe
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
 .venv/
+
+# PyInstaller
+*.spec
+dist/
+build/
+*.exe
+
+*.db-journal
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+.env

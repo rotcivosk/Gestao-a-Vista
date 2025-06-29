@@ -1,14 +1,15 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Header, Body
 from sqlalchemy.orm import Session
 from typing import List
-import models, schemas, crud
-from database import SessionLocal, engine
-from auth import criar_token, verificar_token
+
+# Imports internos do seu pacote
+from app import models, schemas, crud
+from app.database import SessionLocal, engine
+from app.auth import criar_token, verificar_token
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-
 
 # ======================== Banco ========================
 models.Base.metadata.create_all(bind=engine)
