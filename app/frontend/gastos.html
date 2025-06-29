@@ -48,11 +48,20 @@ const token = localStorage.getItem('access_token');
 // ====== Formatar valor em tempo real ======
 const valorInput = document.getElementById('valor');
 
-valorInput.addEventListener('input', () => {
-  let valor = valorInput.value.replace(/\D/g, '');
-  valor = (parseInt(valor, 10) / 100).toFixed(2) + '';
-  valor = valor.replace('.', ',');
-  valorInput.value = `R$ ${valor}`;
+valorInput.addEventListener('input', (e) => {
+  let value = e.target.value.replace(/[^\d]/g, '');
+
+  if (value.length < 3) {
+    value = value.padStart(3, '0');
+  }
+
+  const numberValue = parseFloat(value) / 100;
+
+  e.target.value = numberValue.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2
+  });
 });
 
 // ====== Carregar contas ======
