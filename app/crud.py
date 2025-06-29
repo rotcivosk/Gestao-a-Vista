@@ -28,7 +28,7 @@ def criar_usuario(db: Session, usuario: UsuarioCreate):
 
 def autenticar_usuario(db: Session, email: str, senha: str):
     usuario = db.query(Usuario).filter(Usuario.email == email).first()
-    if usuario and verificar_senha(senha, usuario.senha_hash) # type: ignore
+    if usuario and verificar_senha(senha, getattr(usuario, "senha_hash")):
         return usuario
     return None
 
