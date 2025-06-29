@@ -128,9 +128,10 @@ function cadastrar() {
   }
 
   const data = document.getElementById('data').value;
-  const valor = parseFloat(
-    valorInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()
-  );
+  const valorInput = document.getElementById('valor');
+  let valorTexto = valorInput.value;
+  valorTexto = valorTexto.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+  const valor = parseFloat(valorTexto);
   const descricao = document.getElementById('descricao').value.trim();
   const conta_id = parseInt(document.getElementById('contaSelect').value);
 
