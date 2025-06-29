@@ -80,6 +80,7 @@ function carregarContas() {
 
 // Cadastrar gasto
 function cadastrar() {
+    const token = localStorage.getItem('access_token');  // GARANTE o token!
     const data = document.getElementById('data').value;
     const valor = parseFloat(document.getElementById('valor').value);
     const descricao = document.getElementById('descricao').value.trim();
@@ -95,6 +96,13 @@ function cadastrar() {
         return;
     }
 
+    // Ajusta formato da data
+    let dataFormatada = data;
+    if (data.includes('/')) {
+        const [dia, mes, ano] = data.split('/');
+        dataFormatada = `${ano}-${mes}-${dia}`;
+    }
+
     fetch(`${API_URL}/gastos/`, {
         method: "POST",
         headers: { 
@@ -102,7 +110,7 @@ function cadastrar() {
             "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ 
-            data: data, 
+            data: dataFormatada, 
             valor: valor, 
             descricao: descricao, 
             conta_id: parseInt(conta_id) 
@@ -115,13 +123,14 @@ function cadastrar() {
         return res.json();
     })
     .then(() => {
-        document.getElementById('resposta').innerText = "Gasto cadastrado com sucesso!";
+        document.getElementById('resposta').innerText = "✅ Gasto cadastrado com sucesso!";
         setTimeout(() => window.location.href = "/frontend/dashboard.html", 1200);
     })
     .catch(() => {
-        document.getElementById('resposta').innerText = "Erro ao cadastrar gasto.";
+        document.getElementById('resposta').innerText = "❌ Erro ao cadastrar gasto.";
     });
 }
+
 
 carregarContas();
 </script>
