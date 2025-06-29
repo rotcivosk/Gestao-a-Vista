@@ -1,161 +1,164 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Gestão à Vista - Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card {
-            border-radius: 20px;
-        }
-        .logo {
-            width: 100%;
-            max-width: 300px;
-            display: block;
-            margin: 20px auto;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão à Vista - Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .card { border-radius: 20px; }
+    .logo {
+      width: 100%; max-width: 300px; display: block; margin: 20px auto;
+    }
+  </style>
 </head>
 <body>
 
 <div class="container py-4">
-    <div class="text-center">
-        <img src="images/gestaovista.png" alt="Gestão à Vista" class="logo">
+  <div class="text-center">
+    <img src="images/gestaovista.png" alt="Gestão à Vista" class="logo">
+  </div>
+
+  <div class="card p-4 mx-auto" style="max-width: 500px;">
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item">
+        <button class="nav-link active" id="login-tab" onclick="mostrarTab('login')">Login</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="cadastro-tab" onclick="mostrarTab('cadastro')">Novo</button>
+      </li>
+    </ul>
+
+    <!-- Login -->
+    <div id="login">
+      <h4 class="text-center mb-3">Login</h4>
+      <div class="mb-3">
+        <label class="form-label">Email:</label>
+        <input type="email" id="email" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Senha:</label>
+        <input type="password" id="senha" class="form-control" />
+      </div>
+      <button class="btn btn-primary w-100" onclick="login()">Login</button>
     </div>
 
-    <div class="card p-4 mx-auto" style="max-width: 500px;">
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <button class="nav-link active" id="login-tab" onclick="mostrarTab('login')">Login</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="cadastro-tab" onclick="mostrarTab('cadastro')">Novo</button>
-            </li>
-        </ul>
-
-        <!-- Login -->
-        <div id="login">
-            <h4 class="text-center mb-3">Login</h4>
-            <div class="mb-3">
-                <label class="form-label">Email:</label>
-                <input type="email" id="email" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Senha:</label>
-                <input type="password" id="senha" class="form-control">
-            </div>
-            <button class="btn btn-primary w-100" onclick="login()">Login</button>
-        </div>
-
-        <!-- Cadastro -->
-        <div id="cadastro" class="d-none">
-            <h4 class="text-center mb-3">Criar Conta</h4>
-            <div class="mb-3">
-                <label class="form-label">Nome:</label>
-                <input type="text" id="nome-cadastro" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Email:</label>
-                <input type="email" id="email-cadastro" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Senha:</label>
-                <input type="password" id="senha-cadastro" class="form-control">
-            </div>
-            <button class="btn btn-success w-100" onclick="cadastrar()">Cadastrar</button>
-        </div>
-
-        <div id="resposta" class="mt-3 text-center text-danger"></div>
+    <!-- Cadastro -->
+    <div id="cadastro" class="d-none">
+      <h4 class="text-center mb-3">Criar Conta</h4>
+      <div class="mb-3">
+        <label class="form-label">Nome:</label>
+        <input type="text" id="nome-cadastro" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email:</label>
+        <input type="email" id="email-cadastro" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Senha:</label>
+        <input type="password" id="senha-cadastro" class="form-control" />
+      </div>
+      <button class="btn btn-success w-100" onclick="cadastrar()">Cadastrar</button>
     </div>
+
+    <div id="resposta" class="mt-3 text-center"></div>
+  </div>
 </div>
 
 <script>
 const API_URL = window.location.origin;
 
-// Alterna entre abas de Login e Cadastro
+// Alterna entre abas
 function mostrarTab(tab) {
-    document.getElementById('login').classList.add('d-none');
-    document.getElementById('cadastro').classList.add('d-none');
-    document.getElementById(`${tab}`).classList.remove('d-none');
+  document.getElementById('login').classList.add('d-none');
+  document.getElementById('cadastro').classList.add('d-none');
+  document.getElementById(tab).classList.remove('d-none');
 
-    document.getElementById('login-tab').classList.remove('active');
-    document.getElementById('cadastro-tab').classList.remove('active');
-    document.getElementById(`${tab}-tab`).classList.add('active');
+  document.getElementById('login-tab').classList.remove('active');
+  document.getElementById('cadastro-tab').classList.remove('active');
+  document.getElementById(`${tab}-tab`).classList.add('active');
 
-    document.getElementById('resposta').innerText = '';
+  limparResposta();
+}
+
+function limparResposta() {
+  const resposta = document.getElementById('resposta');
+  resposta.innerText = '';
+  resposta.className = '';
 }
 
 // Login
 function login() {
-    const email = document.getElementById('email').value.trim();
-    const senha = document.getElementById('senha').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value.trim();
 
-    if (!email || !senha) {
-        document.getElementById('resposta').innerText = "Preencha todos os campos.";
-        return;
+  if (!email || !senha) {
+    exibirErro("Preencha todos os campos.");
+    return;
+  }
+
+  fetch(`${API_URL}/login/`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, senha })
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error("Credenciais inválidas");
     }
-
-    fetch(`${API_URL}/login/`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, senha: senha })
-    })
-    .then(res => {
-        if (!res.ok) {
-            document.getElementById('resposta').innerText = "Login inválido.";
-            throw new Error("Falha no login");
-        }
-        return res.json();
-    })
-    .then(data => {
-        localStorage.setItem('access_token', data.access_token);
-        document.getElementById('resposta').innerText = "Login bem-sucedido!";
-        window.location.href = "/frontend/dashboard.html";
-    })
-    .catch(() => {
-        document.getElementById('resposta').innerText = "Erro no login.";
-    });
+    return res.json();
+  })
+  .then(data => {
+    localStorage.setItem('access_token', data.access_token);
+    exibirSucesso("Login bem-sucedido! Redirecionando...");
+    setTimeout(() => {
+      window.location.href = "/frontend/dashboard.html";
+    }, 1000);
+  })
+  .catch(() => exibirErro("Credenciais inválidas ou erro no servidor."));
 }
 
 // Cadastro
 function cadastrar() {
-    const nome = document.getElementById('nome-cadastro').value.trim();
-    const email = document.getElementById('email-cadastro').value.trim();
-    const senha = document.getElementById('senha-cadastro').value.trim();
+  const nome = document.getElementById('nome-cadastro').value.trim();
+  const email = document.getElementById('email-cadastro').value.trim();
+  const senha = document.getElementById('senha-cadastro').value.trim();
 
-    if (!nome || !email || !senha) {
-        document.getElementById('resposta').innerText = "Preencha todos os campos.";
-        return;
+  if (!nome || !email || !senha) {
+    exibirErro("Preencha todos os campos.");
+    return;
+  }
+
+  fetch(`${API_URL}/usuarios/`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, email, senha })
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error("Erro ao cadastrar");
     }
+    return res.json();
+  })
+  .then(() => {
+    exibirSucesso("Usuário cadastrado! Faça login.");
+    mostrarTab('login');
+  })
+  .catch(() => exibirErro("Erro ao cadastrar."));
+}
 
-    const body = {
-        nome: nome,
-        email: email,
-        senha: senha
-    };
+// Helpers para mensagens
+function exibirSucesso(msg) {
+  const resposta = document.getElementById('resposta');
+  resposta.innerText = msg;
+  resposta.className = "alert alert-success";
+}
 
-    fetch(`${API_URL}/usuarios/`, {
-        method: "POST",
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    })
-    .then(res => {
-        if (!res.ok) {
-            document.getElementById('resposta').innerText = "Erro ao cadastrar.";
-            throw new Error("Erro no cadastro");
-        }
-        return res.json();
-    })
-    .then(() => {
-        document.getElementById('resposta').innerText = "Usuário cadastrado com sucesso!";
-        mostrarTab('login');
-    })
-    .catch(() => {
-        document.getElementById('resposta').innerText = "Erro ao cadastrar.";
-    });
+function exibirErro(msg) {
+  const resposta = document.getElementById('resposta');
+  resposta.innerText = msg;
+  resposta.className = "alert alert-danger";
 }
 </script>
 
