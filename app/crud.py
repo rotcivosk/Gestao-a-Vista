@@ -43,8 +43,8 @@ def listar_contas(db: Session, usuario_id: int):
     return db.query(models.Conta).filter(models.Conta.usuario_id == usuario_id).all()
 
 # ==================== Gasto ====================
-
 def criar_gasto(db: Session, gasto: schemas.GastoCreate, usuario_id: int):
+    # Verifica se a conta existe e pertence ao usuário
     conta = db.query(models.Conta).filter(
         models.Conta.id == gasto.conta_id,
         models.Conta.usuario_id == usuario_id
@@ -53,7 +53,8 @@ def criar_gasto(db: Session, gasto: schemas.GastoCreate, usuario_id: int):
     if not conta:
         raise HTTPException(status_code=404, detail="Conta não encontrada para este usuário.")
 
-    db_gasto = models.Gasto(**gasto.dict(), usuario_id=usuario_id)
+    # Cria o gasto sem passar usuario_id (pois não existe na tabela)
+    db_gasto = models.Gasto(**gasto.dict())
     db.add(db_gasto)
     db.commit()
     db.refresh(db_gasto)
@@ -61,7 +62,15 @@ def criar_gasto(db: Session, gasto: schemas.GastoCreate, usuario_id: int):
 
 
 def listar_gastos(db: Session, conta_id: int, usuario_id: int):
+    # Filtra pela conta E garante que a conta pertence ao usuário
+    conta = db.query(models.Conta).filter(
+        models.Conta.id == conta_id,
+        models.Conta.usuario_id == usuario_id
+    ).first()
+
+    if not conta:
+        raise HTTPException(status_code=404, detail="Conta não encontrada para este usuário.")
+
     return db.query(models.Gasto).filter(
-        models.Gasto.conta_id == conta_id,
-        models.Gasto.usuario_id == usuario_id
+        models.Gasto.conta_id == conta_id
     ).all()
