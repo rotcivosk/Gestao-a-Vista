@@ -1,21 +1,18 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 
 from app import models, schemas
 from app.auth import gerar_hash_senha, verificar_senha
-from models import Usuario, Conta, Gasto
-from schemas import UsuarioCreate, ContaCreate, GastoCreate
-from fastapi import HTTPException
-
 
 # ==================== Usuário ====================
 
-def criar_usuario(db: Session, usuario: UsuarioCreate):
-    usuario_existente = db.query(Usuario).filter(Usuario.email == usuario.email).first()
+def criar_usuario(db: Session, usuario: schemas.UsuarioCreate):
+    usuario_existente = db.query(models.Usuario).filter(models.Usuario.email == usuario.email).first()
     if usuario_existente:
         raise HTTPException(status_code=400, detail="Email já cadastrado.")
 
     senha_hash = gerar_hash_senha(usuario.senha)
-    db_usuario = Usuario(
+    db_usuario = models.Usuario(
         nome=usuario.nome,
         email=usuario.email,
         senha_hash=senha_hash
@@ -27,16 +24,15 @@ def criar_usuario(db: Session, usuario: UsuarioCreate):
 
 
 def autenticar_usuario(db: Session, email: str, senha: str):
-    usuario = db.query(Usuario).filter(Usuario.email == email).first()
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == email).first()
     if usuario and verificar_senha(senha, getattr(usuario, "senha_hash")):
         return usuario
     return None
 
-
 # ==================== Conta ====================
 
-def criar_conta(db: Session, conta: ContaCreate, usuario_id: int):
-    db_conta = Conta(**conta.dict(), usuario_id=usuario_id)
+def criar_conta(db: Session, conta: schemas.ContaCreate, usuario_id: int):
+    db_conta = models.Conta(**conta.dict(), usuario_id=usuario_id)
     db.add(db_conta)
     db.commit()
     db.refresh(db_conta)
@@ -44,22 +40,20 @@ def criar_conta(db: Session, conta: ContaCreate, usuario_id: int):
 
 
 def listar_contas(db: Session, usuario_id: int):
-    return db.query(Conta).filter(Conta.usuario_id == usuario_id).all()
-
+    return db.query(models.Conta).filter(models.Conta.usuario_id == usuario_id).all()
 
 # ==================== Gasto ====================
 
-def criar_gasto(db: Session, gasto: GastoCreate, usuario_id: int):
-    # Verifica se a conta pertence ao usuário
-    conta = db.query(Conta).filter(
-        Conta.id == gasto.conta_id,
-        Conta.usuario_id == usuario_id
+def criar_gasto(db: Session, gasto: schemas.GastoCreate, usuario_id: int):
+    conta = db.query(models.Conta).filter(
+        models.Conta.id == gasto.conta_id,
+        models.Conta.usuario_id == usuario_id
     ).first()
 
     if not conta:
         raise HTTPException(status_code=404, detail="Conta não encontrada para este usuário.")
 
-    db_gasto = Gasto(**gasto.dict(), usuario_id=usuario_id)
+    db_gasto = models.Gasto(**gasto.dict(), usuario_id=usuario_id)
     db.add(db_gasto)
     db.commit()
     db.refresh(db_gasto)
@@ -67,9 +61,7 @@ def criar_gasto(db: Session, gasto: GastoCreate, usuario_id: int):
 
 
 def listar_gastos(db: Session, conta_id: int, usuario_id: int):
-    return db.query(Gasto).filter(
-        Gasto.conta_id == conta_id,
-        Gasto.usuario_id == usuario_id
+    return db.query(models.Gasto).filter(
+        models.Gasto.conta_id == conta_id,
+        models.Gasto.usuario_id == usuario_id
     ).all()
-
-
