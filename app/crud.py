@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app import models, schemas, auth
-from auth import gerar_hash_senha, verificar_senha
+from app import models, schemas
+from app.auth import gerar_hash_senha, verificar_senha
 from models import Usuario, Conta, Gasto
 from schemas import UsuarioCreate, ContaCreate, GastoCreate
 from fastapi import HTTPException
