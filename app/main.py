@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Header, Body, Query
 from sqlalchemy.orm import Session
 from typing import List
+from pathlib import Path  # ✅ Para garantir paths absolutos robustos
 
 from app import models, schemas, crud
 from app.database import SessionLocal, engine
@@ -10,9 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+# ======================== Base Path ========================
+BASE_DIR = Path(__file__).resolve().parent  # app/
+
 # ======================== Banco ========================
-# Para DEV: cria as tabelas automaticamente.
-# Em produção, use migrações (ex: Alembic).
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -20,7 +22,7 @@ app = FastAPI()
 # ======================== CORS ========================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ Em produção, defina domínios específicos.
+    allow_origins=["*"],  # ⚠️ Defina domínios em produção
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -101,10 +103,10 @@ def listar_gastos(
     return crud.listar_gastos(db, conta_id, usuario_id)
 
 # ======================== Arquivos Estáticos ========================
-app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
-app.mount("/images", StaticFiles(directory="images"), name="images")
+app.mount("/frontend", StaticFiles(directory=BASE_DIR / "frontend"), name="frontend")
+app.mount("/images", StaticFiles(directory=BASE_DIR / "frontend" / "images"), name="images")
 
 # ======================== Página Inicial ========================
 @app.get("/")
 def read_root():
-    return FileResponse("frontend/index.html")
+    return FileResponse(BASE_DIR / "frontend" / "index.html")
