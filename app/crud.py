@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
-from app.models import Usuario, Conta, Gasto
+
+from app import models, schemas, auth
+from auth import gerar_hash_senha, verificar_senha
+from models import Usuario, Conta, Gasto
 from schemas import UsuarioCreate, ContaCreate, GastoCreate
 from fastapi import HTTPException
 
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ==================== Usuário ====================
 
@@ -28,7 +28,7 @@ def criar_usuario(db: Session, usuario: UsuarioCreate):
 
 def autenticar_usuario(db: Session, email: str, senha: str):
     usuario = db.query(Usuario).filter(Usuario.email == email).first()
-    if usuario and verificar_senha(senha, usuario.senha_hash):  # type: ignore
+    if usuario and verificar_senha(senha, usuario.senha_hash) # type: ignore
         return usuario
     return None
 
@@ -73,11 +73,3 @@ def listar_gastos(db: Session, conta_id: int, usuario_id: int):
     ).all()
 
 
-# ==================== Senha ====================
-
-def gerar_hash_senha(senha: str) -> str:
-    return pwd_context.hash(senha)
-
-
-def verificar_senha(senha: str, senha_hash: str) -> bool:
-    return pwd_context.verify(senha, senha_hash)

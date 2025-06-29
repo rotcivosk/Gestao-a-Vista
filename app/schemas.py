@@ -1,35 +1,32 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import date
 
+# ==================== Usuário ====================
 
-# ===== Usuário =====
 class UsuarioBase(BaseModel):
     nome: str
     email: str
 
-
 class UsuarioCreate(UsuarioBase):
     senha: str
-
 
 class Usuario(UsuarioBase):
     id: int
 
     class Config:
-        orm_mode = True
+        orm_mode = True  # Permite usar modelos ORM direto na resposta
 
 
-# ===== Conta =====
+# ==================== Conta ====================
+
 class ContaBase(BaseModel):
     nome: str
-    valor_mensal: float
+    valor_mensal: float = Field(..., gt=0, description="Valor do gasto deve ser maior que zero")
     descricao: Optional[str] = None
 
-
 class ContaCreate(ContaBase):
-    pass
-
+    pass  # Nada a adicionar além do base
 
 class Conta(ContaBase):
     id: int
@@ -39,16 +36,15 @@ class Conta(ContaBase):
         orm_mode = True
 
 
-# ===== Gasto =====
+# ==================== Gasto ====================
+
 class GastoBase(BaseModel):
     data: date
-    valor: float
+    valor: float = Field(..., gt=0, description="Valor do gasto deve ser maior que zero")
     descricao: Optional[str] = None
-
 
 class GastoCreate(GastoBase):
     conta_id: int
-
 
 class Gasto(GastoBase):
     id: int
