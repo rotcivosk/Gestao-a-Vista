@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import date
 
 # ==================== Usuário ====================
@@ -49,6 +49,20 @@ class GastoCreate(GastoBase):
 class Gasto(GastoBase):
     id: int
     conta_id: int
+
+    class Config:
+        orm_mode = True
+
+# ==================== Relatório ====================
+
+class RelatorioMes(BaseModel):
+    mes: int
+    orcado: float
+    realizado: float
+
+class Relatorio(BaseModel):
+    conta: str
+    meses: List[RelatorioMes]
 
     class Config:
         orm_mode = True

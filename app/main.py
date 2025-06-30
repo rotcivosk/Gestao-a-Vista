@@ -103,13 +103,12 @@ def listar_gastos(
     return crud.listar_gastos(db, conta_id, usuario_id)
 
 
-@app.get("/relatorio/")
-def relatorio(
-    usuario_id: int = Depends(get_current_user),
-    ano: str= "2025",
-    db: Session = Depends(get_db)
-):
+# ======================== Relatório ========================
+
+@app.get("/relatorio/", response_model=List[schemas.Relatorio])
+def relatorio(ano: int, usuario_id: int = Depends(get_current_user), db: Session = Depends(get_db)):
     return crud.relatorio_orcado_real(db, usuario_id, ano)
+
 
 # ======================== Arquivos Estáticos ========================
 app.mount("/frontend", StaticFiles(directory=BASE_DIR / "frontend"), name="frontend")
