@@ -78,34 +78,32 @@ def listar_gastos(db: Session, conta_id: int, usuario_id: int):
         models.Gasto.conta_id == conta_id
     ).all()
 
-def relatorio_orcado_real(db, usuario_id: int, ano: int):
-    
+def relatorio_orcado_real(db: Session, usuario_id: int, ano: str):
     contas = db.query(models.Conta).filter(models.Conta.usuario_id == usuario_id).all()
-    if not contas:
-        raise HTTPException(status_code=404, detail="Nenhuma conta encontrada para este usuário.")
-    
 
-    resultado = []
+    relatorio = []
+
     for conta in contas:
-        orcado = [conta.valor_mensal] * 12
-        realizado = [0.0] * 12  # Ensure it's a list of floats
+        orcado = conta.valor_mensal
+        meses = []
 
-        gastos = db.query(extract('month', models.Gasto.data).label('mes'), func.sum(models.Gasto.valor).label('total')).filter(
-            models.Gasto.conta_id == conta.id,
-            extract('year', models.Gasto.data) == ano
-        ).group_by('mes').all()
+        for mes in range(1, 13):
+            gastos = db.query(models.Gasto).filter(
+                models.Gasto.conta_id == conta.id,
+                models.Gasto.data.startswith(f"{ano}-{mes:02d}")
+            ).all()
 
-        for gasto in gastos:
-            realizado[int(gasto.mes) - 1] = float(gasto.total)
+            total_gastos = sum(gasto.valor for gasto in gastos)
 
-        total_gastos = sum(gasto.valor for gasto in gastos)
+            meses.append({
+                "mes": mes,
+                "orcado": orcado,
+                "realizado": total_gastos
+            })
 
-        resultado.append({
-            "conta_id": conta.id,
-            "nome": conta.nome,
-            "orcado": orcado,
-            "realizado": realizado,
-            "total_gastos": total_gastos
+        relatorio.append({
+            "conta": conta.nome,
+            "meses": meses
         })
 
-    return resultado
+    return relatorio

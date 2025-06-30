@@ -100,9 +100,21 @@ function desenharGraficoContas(data) {
 function carregarGastos() {
   const conta_id = document.getElementById('contaSelect').value;
   const container = document.getElementById('gastos');
-  if (!conta_id) { container.innerHTML = "<p>Selecione uma conta.</p>"; limparGraficoPizza(); return; }
+  const token = localStorage.getItem('access_token');
 
-  fetch(`${API_URL}/gastos/?conta_id=${conta_id}`)
+  if (!conta_id) {
+    container.innerHTML = "<p>Selecione uma conta.</p>";
+    limparGraficoPizza();
+    return;
+  }
+
+  console.log("conta_id:", conta_id);
+
+  fetch(`${API_URL}/gastos/?conta_id=${conta_id}`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
     .then(res => res.json())
     .then(data => {
       if (!data.length) { container.innerHTML = "<p>Sem gastos.</p>"; limparGraficoPizza(); return; }
@@ -114,8 +126,10 @@ function carregarGastos() {
         valores.push(g.valor);
       });
       desenharGraficoPizza(labels, valores);
-    });
+    })
+    .catch(err => console.error("Erro ao carregar gastos:", err));
 }
+
 
 function desenharGraficoPizza(labels, dados) {
   const ctx = document.getElementById('graficoGastos').getContext('2d');

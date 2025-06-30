@@ -106,7 +106,7 @@ def listar_gastos(
 @app.get("/relatorio/")
 def relatorio(
     usuario_id: int = Depends(get_current_user),
-    ano: int= 2025,
+    ano: str= "2025",
     db: Session = Depends(get_db)
 ):
     return crud.relatorio_orcado_real(db, usuario_id, ano)
