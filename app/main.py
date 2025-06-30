@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Header, Body, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pathlib import Path  # ✅ Para garantir paths absolutos robustos
 
 from app import models, schemas, crud
@@ -106,8 +106,13 @@ def listar_gastos(
 # ======================== Relatório ========================
 
 @app.get("/relatorio/", response_model=List[schemas.ContaRelatorio])
-def relatorio(ano: int = Query(...), usuario_id: int = Depends(get_current_user), db: Session = Depends(get_db)):
-    return crud.relatorio_orcado_real(db, usuario_id, ano)
+def relatorio(
+    ano: int = Query(...),
+    conta_id: Optional[int] = Query(None),  # NOVO!
+    usuario_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return crud.relatorio_orcado_real(db, usuario_id, ano, conta_id)
 
 # ======================== Arquivos Estáticos ========================
 app.mount("/frontend", StaticFiles(directory=BASE_DIR / "frontend"), name="frontend")

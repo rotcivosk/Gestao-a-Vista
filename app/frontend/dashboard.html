@@ -24,7 +24,7 @@
   <!-- SELEÇÃO CONTA -->
   <div class="card p-4 mb-4">
     <h5>Selecione uma Conta:</h5>
-    <select id="contaSelect" class="form-select mb-3" onchange="carregarGastos()">
+    <select id="contaSelect" class="form-select mb-3" onchange="carregarGastos(); carregarOrcadoReal()">
       <option value="">Selecione...</option>
     </select>
 
@@ -108,12 +108,8 @@ function carregarGastos() {
     return;
   }
 
-  console.log("conta_id:", conta_id);
-
   fetch(`${API_URL}/gastos/?conta_id=${conta_id}`, {
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
+    headers: { "Authorization": `Bearer ${token}` }
   })
     .then(res => res.json())
     .then(data => {
@@ -130,7 +126,6 @@ function carregarGastos() {
     .catch(err => console.error("Erro ao carregar gastos:", err));
 }
 
-
 function desenharGraficoPizza(labels, dados) {
   const ctx = document.getElementById('graficoGastos').getContext('2d');
   if (chartPizza) chartPizza.destroy();
@@ -146,8 +141,15 @@ function limparGraficoPizza() { if (chartPizza) chartPizza.destroy(); }
 // ==================== RELATÓRIO ORÇADO X REAL ====================
 function carregarOrcadoReal() {
   const ano = document.getElementById('anoSelect').value;
+  const conta_id = document.getElementById('contaSelect').value;
   const token = localStorage.getItem('access_token');
-  fetch(`${API_URL}/relatorio/?ano=${ano}`, { headers: { "Authorization": `Bearer ${token}` } })
+
+  let url = `${API_URL}/relatorio/?ano=${ano}`;
+  if (conta_id) {
+    url += `&conta_id=${conta_id}`;
+  }
+
+  fetch(url, { headers: { "Authorization": `Bearer ${token}` } })
     .then(res => res.json())
     .then(data => {
       const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];

@@ -69,7 +69,7 @@
 <script>
 const API_URL = window.location.origin;
 
-// Alterna entre abas
+// Alterna abas
 function mostrarTab(tab) {
   document.getElementById('login').classList.add('d-none');
   document.getElementById('cadastro').classList.add('d-none');
@@ -148,7 +148,6 @@ function cadastrar() {
   .catch(() => exibirErro("Erro ao cadastrar."));
 }
 
-// Helpers para mensagens
 function exibirSucesso(msg) {
   const resposta = document.getElementById('resposta');
   resposta.innerText = msg;

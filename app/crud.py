@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
+from typing import Optional
 
 from sqlalchemy import extract, func
 from fastapi import HTTPException
@@ -78,8 +79,12 @@ def listar_gastos(db: Session, conta_id: int, usuario_id: int):
         models.Gasto.conta_id == conta_id
     ).all()
 
-def relatorio_orcado_real(db: Session, usuario_id: int, ano: int):
-    contas = db.query(models.Conta).filter(models.Conta.usuario_id == usuario_id).all()
+def relatorio_orcado_real(db: Session, usuario_id: int, ano: int, conta_id: Optional[int] = None):
+    query = db.query(models.Conta).filter(models.Conta.usuario_id == usuario_id)
+    if conta_id:
+        query = query.filter(models.Conta.id == conta_id)
+
+    contas = query.all()
     relatorio = []
 
     for conta in contas:
@@ -91,6 +96,7 @@ def relatorio_orcado_real(db: Session, usuario_id: int, ano: int):
                 models.Gasto.conta_id == conta.id,
                 models.Gasto.data.startswith(f"{ano}-{mes:02d}")
             ).all()
+
             total_gastos = sum(float(getattr(gasto, "valor")) for gasto in gastos)
 
             orcado.append(float(getattr(conta, "valor_mensal")))
