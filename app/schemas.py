@@ -35,6 +35,11 @@ class Conta(ContaBase):
     class Config:
         orm_mode = True
 
+class ContaRelatorio(BaseModel):
+    conta: str
+    orcado: List[float]
+    realizado: List[float]
+
 
 # ==================== Gasto ====================
 
@@ -61,8 +66,4 @@ class RelatorioMes(BaseModel):
     realizado: float
 
 class Relatorio(BaseModel):
-    conta: str
-    meses: List[RelatorioMes]
-
-    class Config:
-        orm_mode = True
+    __root__: List[ContaRelatorio]
