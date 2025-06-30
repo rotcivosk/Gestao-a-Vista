@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import date
 
@@ -15,18 +15,18 @@ class Usuario(UsuarioBase):
     id: int
 
     class Config:
-        orm_mode = True  # Permite usar modelos ORM direto na resposta
+        orm_mode = True
 
 
 # ==================== Conta ====================
 
 class ContaBase(BaseModel):
     nome: str
-    valor_mensal: float = Field(..., gt=0, description="Valor do gasto deve ser maior que zero")
+    valor_mensal: float = Field(..., gt=0)
     descricao: Optional[str] = None
 
 class ContaCreate(ContaBase):
-    pass  # Nada a adicionar além do base
+    pass
 
 class Conta(ContaBase):
     id: int
@@ -34,6 +34,9 @@ class Conta(ContaBase):
 
     class Config:
         orm_mode = True
+
+
+# ==================== ContaRelatorio ====================
 
 class ContaRelatorio(BaseModel):
     conta: str
@@ -45,7 +48,7 @@ class ContaRelatorio(BaseModel):
 
 class GastoBase(BaseModel):
     data: date
-    valor: float = Field(..., gt=0, description="Valor do gasto deve ser maior que zero")
+    valor: float = Field(..., gt=0)
     descricao: Optional[str] = None
 
 class GastoCreate(GastoBase):
@@ -58,12 +61,8 @@ class Gasto(GastoBase):
     class Config:
         orm_mode = True
 
+
 # ==================== Relatório ====================
 
-class RelatorioMes(BaseModel):
-    mes: int
-    orcado: float
-    realizado: float
-
-class Relatorio(RootModel):
-    root: List[ContaRelatorio]
+# 🔑 Se você usa `response_model = List[ContaRelatorio]` NO ENDPOINT,
+# NÃO precisa de RootModel aqui. Simples assim.
