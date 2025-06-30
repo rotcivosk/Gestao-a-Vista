@@ -102,6 +102,15 @@ def listar_gastos(
 ):
     return crud.listar_gastos(db, conta_id, usuario_id)
 
+
+@app.get("/relatorio/")
+def relatorio(
+    usuario_id: int = Depends(get_current_user),
+    ano: int= 2025,
+    db: Session = Depends(get_db)
+):
+    return crud.relatorio_orcado_real(db, usuario_id, ano)
+
 # ======================== Arquivos Estáticos ========================
 app.mount("/frontend", StaticFiles(directory=BASE_DIR / "frontend"), name="frontend")
 app.mount("/images", StaticFiles(directory=BASE_DIR / "frontend" / "images"), name="images")

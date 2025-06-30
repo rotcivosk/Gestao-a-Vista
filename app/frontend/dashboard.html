@@ -6,13 +6,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    .card {
-      border-radius: 20px;
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-    }
+    body { background-color: #f8f9fa; }
+    .card { border-radius: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
@@ -26,7 +21,7 @@
     <a href="/frontend/index.html" class="btn btn-secondary w-100">Sair</a>
   </div>
 
-  <!-- CONTAS E GASTOS -->
+  <!-- SELEÇÃO CONTA -->
   <div class="card p-4 mb-4">
     <h5>Selecione uma Conta:</h5>
     <select id="contaSelect" class="form-select mb-3" onchange="carregarGastos()">
@@ -45,49 +40,48 @@
     </div>
   </div>
 
-  <!-- NOVO: Gráfico Orçado x Real -->
+  <!-- SELEÇÃO ANO -->
   <div class="card p-4 mb-4">
     <h5 class="text-center mb-4">Orçado x Real (Ano)</h5>
+    <div class="mb-3">
+      <label class="form-label">Ano:</label>
+      <select id="anoSelect" class="form-select w-auto" onchange="carregarOrcadoReal()">
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+      </select>
+    </div>
     <canvas id="graficoOrcadoReal"></canvas>
   </div>
 
-  <!-- Valor Mensal das Contas -->
+  <!-- LINHA CONTAS -->
   <div class="card p-4">
-    <h5 class="text-center mb-4">Gráfico de Linhas - Valor Mensal das Contas</h5>
+    <h5 class="text-center mb-4">Valor Mensal das Contas</h5>
     <canvas id="graficoContas"></canvas>
   </div>
 </div>
 
 <script>
 const API_URL = window.location.origin;
-let chartPizza = null;
-let chartLinhas = null;
-let chartOrcadoReal = null;
+let chartPizza = null, chartLinhas = null, chartOrcadoReal = null;
 
-// 1) Contas dropdown e linha
+// ==================== CONTAS ====================
 function carregarContas() {
   const token = localStorage.getItem('access_token');
-  fetch(`${API_URL}/contas/`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Erro ao carregar contas.");
-    return res.json();
-  })
-  .then(data => {
-    const select = document.getElementById('contaSelect');
-    select.innerHTML = `<option value="">Selecione...</option>`;
-    data.forEach(conta => {
-      const option = document.createElement('option');
-      option.value = conta.id;
-      option.textContent = `${conta.nome} - R$ ${conta.valor_mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-      select.appendChild(option);
+  fetch(`${API_URL}/contas/`, { headers: { "Authorization": `Bearer ${token}` } })
+    .then(res => res.json())
+    .then(data => {
+      const select = document.getElementById('contaSelect');
+      select.innerHTML = `<option value="">Selecione...</option>`;
+      data.forEach(conta => {
+        const option = document.createElement('option');
+        option.value = conta.id;
+        option.textContent = `${conta.nome} - R$ ${conta.valor_mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        select.appendChild(option);
+      });
+      desenharGraficoContas(data);
+      carregarOrcadoReal();
     });
-    desenharGraficoContas(data);
-  });
 }
 
 function desenharGraficoContas(data) {
@@ -97,37 +91,27 @@ function desenharGraficoContas(data) {
   if (chartLinhas) chartLinhas.destroy();
   chartLinhas = new Chart(ctx, {
     type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Valor Mensal das Contas',
-        data: valores,
-        borderColor: 'rgb(75, 192, 192)',
-        fill: false,
-        tension: 0.2
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: { y: { beginAtZero: true } }
-    }
+    data: { labels, datasets: [{ label: 'Valor Mensal', data: valores, borderColor: 'rgb(75, 192, 192)', fill: false, tension: 0.2 }] },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
   });
 }
 
-// 2) Gastos por conta + Pizza
+// ==================== GASTOS ====================
 function carregarGastos() {
   const conta_id = document.getElementById('contaSelect').value;
   const container = document.getElementById('gastos');
   if (!conta_id) { container.innerHTML = "<p>Selecione uma conta.</p>"; limparGraficoPizza(); return; }
+
   fetch(`${API_URL}/gastos/?conta_id=${conta_id}`)
     .then(res => res.json())
     .then(data => {
-      if (data.length === 0) { container.innerHTML = "<p>Sem gastos.</p>"; limparGraficoPizza(); return; }
+      if (!data.length) { container.innerHTML = "<p>Sem gastos.</p>"; limparGraficoPizza(); return; }
       container.innerHTML = "";
       const labels = [], valores = [];
       data.forEach(g => {
-        container.innerHTML += `<div class="card mb-2 p-2"><strong>${g.descricao || 'Sem descrição'}</strong><br>Data: ${g.data}<br>Valor: R$ ${g.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>`;
-        labels.push(g.descricao || 'Sem descrição'); valores.push(g.valor);
+        container.innerHTML += `<div class="card mb-2 p-2"><strong>${g.descricao || 'Sem descrição'}</strong><br>Data: ${g.data}<br>Valor: R$ ${g.valor.toLocaleString('pt-BR')}</div>`;
+        labels.push(g.descricao || 'Sem descrição');
+        valores.push(g.valor);
       });
       desenharGraficoPizza(labels, valores);
     });
@@ -145,46 +129,64 @@ function desenharGraficoPizza(labels, dados) {
 
 function limparGraficoPizza() { if (chartPizza) chartPizza.destroy(); }
 
-// 3) NOVO: Gráfico Orçado x Real
-function desenharGraficoOrcadoReal(meses, orcado, realizado) {
+// ==================== RELATÓRIO ORÇADO X REAL ====================
+function carregarOrcadoReal() {
+  const ano = document.getElementById('anoSelect').value;
+  const token = localStorage.getItem('access_token');
+  fetch(`${API_URL}/relatorio/?ano=${ano}`, { headers: { "Authorization": `Bearer ${token}` } })
+    .then(res => res.json())
+    .then(data => {
+      const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const datasets = [];
+
+      data.forEach(conta => {
+        const cor = gerarCores(1)[0];
+        datasets.push(
+          {
+            label: `Orçado - ${conta.conta}`,
+            data: conta.orcado,
+            type: 'line',
+            borderColor: cor,
+            borderWidth: 2,
+            fill: false
+          },
+          {
+            label: `Realizado - ${conta.conta}`,
+            data: conta.realizado,
+            backgroundColor: cor + '88'
+          }
+        );
+      });
+
+      desenharGraficoOrcadoReal(meses, datasets);
+    });
+}
+
+function desenharGraficoOrcadoReal(meses, datasets) {
   const ctx = document.getElementById('graficoOrcadoReal').getContext('2d');
   if (chartOrcadoReal) chartOrcadoReal.destroy();
   chartOrcadoReal = new Chart(ctx, {
     type: 'bar',
-    data: {
-      labels: meses,
-      datasets: [
-        {
-          label: 'Orçado',
-          data: orcado,
-          backgroundColor: 'rgba(0,0,255,0)',
-          borderColor: 'rgba(0,0,255,1)',
-          borderWidth: 2
-        },
-        {
-          label: 'Realizado',
-          data: realizado,
-          backgroundColor: 'rgba(0,0,255,0.5)'
-        }
-      ]
-    },
+    data: { labels: meses, datasets },
     options: {
       responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: R$ ${ctx.parsed.y.toLocaleString('pt-BR')}`
+          }
+        }
+      },
       scales: { y: { beginAtZero: true } }
     }
   });
 }
 
-// Dados teste
-const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const orcado = [2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000];
-const realizado = [1500,1600,1900,1800,1700,1500,1400,1350,1600,2000,1800,1700];
-desenharGraficoOrcadoReal(meses, orcado, realizado);
-
+// ==================== UTILS ====================
 function gerarCores(qtd) {
   const cores = [];
   for (let i = 0; i < qtd; i++) {
-    cores.push(`hsl(${Math.random()*360},70%,60%)`);
+    cores.push(`hsl(${Math.random()*360},70%,50%)`);
   }
   return cores;
 }
