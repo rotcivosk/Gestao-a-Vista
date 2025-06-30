@@ -80,12 +80,10 @@ def listar_gastos(db: Session, conta_id: int, usuario_id: int):
 
 def relatorio_orcado_real(db: Session, usuario_id: int, ano: int):
     contas = db.query(models.Conta).filter(models.Conta.usuario_id == usuario_id).all()
-
     relatorio = []
 
     for conta in contas:
-        orcado = conta.valor_mensal
-        realizado_por_mes = []
+        meses = []
 
         for mes in range(1, 13):
             gastos = db.query(models.Gasto).filter(
@@ -93,13 +91,17 @@ def relatorio_orcado_real(db: Session, usuario_id: int, ano: int):
                 models.Gasto.data.startswith(f"{ano}-{mes:02d}")
             ).all()
 
-            total_gastos = sum(gasto.valor for gasto in gastos)
-            realizado_por_mes.append(total_gastos)
+            total_gastos = sum(float(getattr(gasto, "valor")) for gasto in gastos)
+
+            meses.append({
+                "mes": mes,
+                "orcado": float(getattr(conta, "valor_mensal")),
+                "realizado": total_gastos
+            })
 
         relatorio.append({
             "conta": conta.nome,
-            "orcado": [orcado] * 12,   # Orçado é o mesmo para todos os meses
-            "realizado": realizado_por_mes
+            "meses": meses
         })
 
     return relatorio
