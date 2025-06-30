@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 from typing import Optional, List
 from datetime import date
 
@@ -65,5 +65,5 @@ class RelatorioMes(BaseModel):
     orcado: float
     realizado: float
 
-class Relatorio(BaseModel):
-    __root__: List[ContaRelatorio]
+class Relatorio(RootModel):
+    root: List[ContaRelatorio]
