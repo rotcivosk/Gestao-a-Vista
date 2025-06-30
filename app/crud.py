@@ -83,25 +83,23 @@ def relatorio_orcado_real(db: Session, usuario_id: int, ano: int):
     relatorio = []
 
     for conta in contas:
-        meses = []
+        orcado = []
+        realizado = []
 
         for mes in range(1, 13):
             gastos = db.query(models.Gasto).filter(
                 models.Gasto.conta_id == conta.id,
                 models.Gasto.data.startswith(f"{ano}-{mes:02d}")
             ).all()
-
             total_gastos = sum(float(getattr(gasto, "valor")) for gasto in gastos)
 
-            meses.append({
-                "mes": mes,
-                "orcado": float(getattr(conta, "valor_mensal")),
-                "realizado": total_gastos
-            })
+            orcado.append(float(getattr(conta, "valor_mensal")))
+            realizado.append(total_gastos)
 
         relatorio.append({
             "conta": conta.nome,
-            "meses": meses
+            "orcado": orcado,
+            "realizado": realizado
         })
 
     return relatorio

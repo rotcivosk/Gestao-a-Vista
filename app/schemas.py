@@ -61,8 +61,3 @@ class Gasto(GastoBase):
     class Config:
         orm_mode = True
 
-
-# ==================== Relatório ====================
-
-# 🔑 Se você usa `response_model = List[ContaRelatorio]` NO ENDPOINT,
-# NÃO precisa de RootModel aqui. Simples assim.
